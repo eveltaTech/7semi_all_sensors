@@ -12,8 +12,8 @@
  *
  * Hardware Connections:
  * - ESP32:
- *   - RX2 (ESP32) -> TX (EC200U-CN)
- *   - TX2 (ESP32) -> RX (EC200U-CN)
+ *   - RX2 (16) (ESP32) -> TX (EC200U-CN)
+ *   - TX2 (17) (ESP32) -> RX (EC200U-CN)
  *   - GND (ESP32) -> GND (EC200U-CN)
  
  * Author and credits: Sachin Soni
