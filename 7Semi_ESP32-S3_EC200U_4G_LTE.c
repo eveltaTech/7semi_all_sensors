@@ -1,6 +1,6 @@
 // Define the hardware serial connection to the EC200U module
-#define EC200U_RX 16 // Define the pin for RX (EC200U TX)
-#define EC200U_TX 17 // Define the pin for TX (EC200U RX)
+#define EC200U_RX 12 // Define the pin for RX (EC200U TX)
+#define EC200U_TX 13 // Define the pin for TX (EC200U RX)
 
 HardwareSerial ec200u(1); // Using UART1 for EC200U communication
 
