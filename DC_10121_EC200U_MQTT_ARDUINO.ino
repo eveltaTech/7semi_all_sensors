@@ -11,7 +11,7 @@ const char pass[] = "";
 
 const char mqttServer[]   = "io.adafruit.com";
 const int  mqttPort       = 1883;
-const char mqttUser[]     = "KOmkar";
+const char mqttUser[]     = "";
 const char mqttPassword[] = "";
 const char mqttPublishTopic[] = "";
 
