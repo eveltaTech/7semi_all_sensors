@@ -1,14 +1,20 @@
+#include <SoftwareSerial.h>
+
 const int frameSize = 13;
 uint8_t buffer[frameSize];
 
+// Define software serial on pins 10 (RX), 11 (TX)
+SoftwareSerial mySerial(10, 11); // RX, TX
+
 void setup() {
-    Serial.begin(9600); // Initialize Serial Communication
+    mySerial.begin(9600); // Initialize Software Serial Communication
+    Serial.begin(9600);   // Optional: for debugging to Serial Monitor
 }
 
 void loop() {
-    if (Serial.available() >= frameSize) 
+    if (mySerial.available() >= frameSize) 
     {
-        Serial.readBytes(buffer, frameSize);
+        mySerial.readBytes(buffer, frameSize);
         
         // Validate start byte
         if (buffer[0] != 0xAA) 
@@ -26,7 +32,7 @@ void loop() {
         // Convert to float
         float temperature = *(float*)&temp_int;
         float humidity = *(float*)&hum_int;
-        uint32_t voc= *(uint32_t*)&voc_index;
+        uint32_t voc = *(uint32_t*)&voc_index;
         
         // Ensure VOC index is positive
         if (voc_index < 0) voc_index = 0;
@@ -40,3 +46,4 @@ void loop() {
         Serial.println(voc);
     }
 }
+
