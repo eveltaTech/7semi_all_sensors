@@ -18,6 +18,7 @@
  
  * Author and credits: Sachin Soni
  * YouTube: Check out tech tutorials and projects at **techiesms**: https://www.youtube.com/techiesms
+ * Code modified by: 7Semi
  */
 
 #define SerialMon Serial
@@ -36,9 +37,9 @@ const char pass[] = "";    // Replace with APN password (if any)
 
 const char mqttServer[] = "io.adafruit.com";                     // MQTT Server
 const int mqttPort = 1883;                                       // MQTT Port
-const char mqttUser[] = "KOmkar";                                // MQTT Username
-const char mqttPassword[] = "aio_mDSd80QSAWgWuB3cW4fNusIVFudd";  // MQTT Password
-const char mqttPublishTopic[] = "KOmkar/feeds/value";            // Topic to publish
+const char mqttUser[] = "";                                // MQTT Username
+const char mqttPassword[] = "";  // MQTT Password
+const char mqttPublishTopic[] = "";            // Topic to publish
 
 unsigned long lastPublishTime = 0;           // Tracks the last publish time
 const unsigned long publishInterval = 7000;  // Publish interval (7 seconds)
