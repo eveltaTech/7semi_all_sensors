@@ -1,0 +1,118 @@
+/*
+ * Project: MQTT Communication using EC200U-CN Module
+ * Description: This project demonstrates the use of the EC200U-CN module for MQTT communication. 
+ *              The code establishes an MQTT connection and publishes data at regular intervals.
+ *
+ * Features:
+ * - Publishes incrementing counter data to a specified MQTT topic.
+ *
+ * Requirements:
+ * - Ensure correct APN settings for your network provider.
+ * - Replace MQTT server, username, password, and topics with your broker's configuration.
+ *
+ * Hardware Connections:
+ * - ESP32:
+ *   - RX2 (16) (ESP32) -> TX (EC200U-CN)
+ *   - TX2 (17) (ESP32) -> RX (EC200U-CN)
+ *   - GND (ESP32) -> GND (EC200U-CN)
+ 
+ * Author and credits: Sachin Soni
+ * YouTube: Check out tech tutorials and projects at **techiesms**: https://www.youtube.com/techiesms
+ */
+
+#define SerialMon Serial
+//#define SerialAT Serial2
+
+#define RXD1 12  // Connect this to the module's TX pin
+#define TXD1 13  // Connect this to the module's RX pin
+
+HardwareSerial SerialAT(1);
+
+#define MODEM_BAUDRATE 115200
+
+const char apn[] = "airtelgprs.com";  // Replace with your APN
+const char user[] = "";    // Replace with APN username (if any)
+const char pass[] = "";    // Replace with APN password (if any)
+
+const char mqttServer[] = "io.adafruit.com";                     // MQTT Server
+const int mqttPort = 1883;                                       // MQTT Port
+const char mqttUser[] = "KOmkar";                                // MQTT Username
+const char mqttPassword[] = "aio_mDSd80QSAWgWuB3cW4fNusIVFudd";  // MQTT Password
+const char mqttPublishTopic[] = "KOmkar/feeds/value";            // Topic to publish
+
+unsigned long lastPublishTime = 0;           // Tracks the last publish time
+const unsigned long publishInterval = 7000;  // Publish interval (7 seconds)
+
+void setup() {
+  SerialMon.begin(115200);
+  SerialAT.begin(115200, SERIAL_8N1, RXD1, TXD1);
+
+  SerialMon.println("Initializing modem...");
+
+  modem_init();  // Send initialization commands
+
+  // Ensure no previous MQTT connections exist
+  SerialMon.println("Disconnecting previous MQTT sessions...");
+  sendATCommand("AT+QMTDISC=0");                                                                // Disconnect MQTT session (if any)
+  sendATCommand("AT+QMTOPEN=0,\"" + String(mqttServer) + "\"," + String(mqttPort));             // Open MQTT connection
+  checkResponse("AT+QMTCONN=0,\"123\",\"" + String(mqttUser) + "\",\"" + mqttPassword + "\"");  // Connect to MQTT broker
+}
+
+void loop() {
+  unsigned long currentMillis = millis();
+
+  // Check if it's time to publish data
+  if (currentMillis - lastPublishTime >= publishInterval) {
+    publishData();
+    lastPublishTime = currentMillis;
+  }
+}
+
+void publishData() {
+  static int counter = 0;              // Data to publish
+  String payload = String(counter++);  // Increment data to publish
+
+  SerialMon.println("Publishing data: " + payload);
+  sendATCommand(String("AT+QMTPUB=0,0,0,0,\"") + mqttPublishTopic + "\"");
+  SerialAT.print(payload);
+  SerialAT.write(0x1A);  // End of input with Ctrl+Z
+}
+
+void modem_init() {
+  sendATCommand("AT");         // Basic AT command to check communication
+  sendATCommand("ATE0");       // Disable echo for cleaner responses
+  sendATCommand("AT+CPIN?");   // Check SIM status
+  sendATCommand("AT+CSQ");     // Check signal quality
+  sendATCommand("AT+CREG?");   // Check network registration status
+  sendATCommand("AT+CGATT?");  // Check if GPRS is attached
+}
+
+void sendATCommand(const String& command) {
+  SerialMon.print("Sending: ");
+  SerialMon.println(command);
+  SerialAT.println(command);
+  delay(2000);  // Minimal delay to allow command processing
+
+  while (SerialAT.available()) {
+    String response = SerialAT.readString();
+    SerialMon.println("Response: " + response);
+  }
+}
+
+void checkResponse(const String& command) {
+  SerialMon.print("Sending: ");
+  SerialMon.println(command);
+  SerialAT.println(command);
+  delay(2000);  // Minimal delay to allow command processing
+
+  while (SerialAT.available()) {
+    String response = SerialAT.readString();
+    SerialMon.print("Response: ");
+    SerialMon.println(response);
+    if (response.indexOf("ERROR") != -1) {
+      SerialMon.println("Error in response!");
+      while (true)
+        ;  // Halt on error
+    }
+  }
+}
